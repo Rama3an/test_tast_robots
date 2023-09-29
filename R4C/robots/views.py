@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.http import HttpResponse
 from django.views.generic import View
 from django.core.exceptions import ValidationError
@@ -6,6 +7,8 @@ import json
 
 
 class PutNewRobots(View):
+    require_http_methods = ["POST"]
+
     def post(self, request, *args, **kwargs):
         robots_data = json.loads(request.body)
         try:
@@ -13,8 +16,9 @@ class PutNewRobots(View):
                 serial=robots_data.get("serial", "Not set"),
                 model=robots_data.get("model", "Not set"),
                 version=robots_data.get("version", "Not set"),
-                created=robots_data.get("created", "Not set"),
+                created=robots_data.get("created", timezone.now()),
             )
+            new_entry_bd.save()
             return HttpResponse("Записи добавлены")
 
         except ValidationError:
